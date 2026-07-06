@@ -1,20 +1,11 @@
-from models.request_models import FailureAnalysisRequest
-from models.response_models import FailureAnalysisResponse
+from providers.provider_factory import ProviderFactory
 
 
 class LLMService:
 
     @staticmethod
-    def analyze(request: FailureAnalysisRequest):
+    def analyze(request):
 
-        return FailureAnalysisResponse(
+        provider = ProviderFactory.get_provider()
 
-            summary="Login test failed.",
-
-            rootCause="Unable to determine yet.",
-
-            recommendation="Investigate Playwright logs.",
-
-            confidence=50
-
-        )
+        return provider.analyze(request)
