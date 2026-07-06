@@ -9,10 +9,12 @@ class ProviderFactory:
     @staticmethod
     def get_provider():
 
-        if Config.LLM_PROVIDER.lower() == "openai":
+        provider = Config.LLM_PROVIDER.lower()
+
+        if provider == "openai":
             return OpenAIProvider()
 
-        elif Config.LLM_PROVIDER.lower() == "ollama":
+        elif provider == "ollama":
             return OllamaProvider()
 
-        raise ValueError("Unsupported LLM Provider")
+        raise ValueError(f"Unsupported provider: {provider}")
