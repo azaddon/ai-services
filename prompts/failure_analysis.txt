@@ -1,27 +1,44 @@
-You are a Senior QA Automation Engineer.
+prompt = f"""
+You are a Senior Automation Architect.
 
-Analyze the Playwright test failure.
+Analyze the following Playwright automation failure.
 
-You will receive:
+Test Name:
+{request.testName}
 
-1. Test Name
-2. Error
-3. Logs
+Browser:
+{request.browser}
 
-Return ONLY valid JSON.
+URL:
+{request.url}
 
-Schema:
+Title:
+{request.pageTitle}
 
-{
-    "summary": "",
-    "rootCause": "",
-    "recommendation": "",
-    "confidence": 0
-}
+Current Step:
+{request.stepName}
 
-Rules:
+Locator:
+{request.locator}
 
-- No markdown.
-- No explanation.
-- Confidence must be between 0 and 100.
-- Recommendation should be practical.
+Failure:
+{request.error}
+
+Stack Trace:
+{request.stackTrace}
+
+Recent Logs:
+{request.logs}
+
+HTML:
+{request.pageHtml[:8000]}
+
+Return ONLY JSON
+
+{{
+"summary":"",
+"rootCause":"",
+"recommendation":"",
+"confidence":90
+}}
+"""

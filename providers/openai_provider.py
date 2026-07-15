@@ -1,5 +1,3 @@
-import json
-
 from openai import OpenAI
 
 from providers.base_provider import BaseProvider
@@ -13,66 +11,92 @@ client = OpenAI(api_key=Config.OPENAI_KEY)
 
 class OpenAIProvider(BaseProvider):
 
-    def analyze(self, request):
+    def analyze_with_openai(request, rule_result, screenshot_result):
 
-        prompt = PromptManager.load_prompt(
+        # -------------------------
+        # STEP 5 STARTS HERE
+        # -------------------------
+
+        prompt = PromptManager.get_prompt(
             PromptNames.FAILURE_ANALYSIS
         )
 
+        ctx = request.context
+
         user_input = f"""
+Rule Engine Analysis:
+
+{rule_result}
+
+Screenshot Analysis:
+
+{screenshot_result}
+
 Test Name:
-{request.testName}
+{ctx.testName}
+
+Browser:
+{ctx.browser}
+
+Environment:
+{ctx.environment}
+
+URL:
+{ctx.url}
+
+Page Title:
+{ctx.pageTitle}
+
+Step:
+{ctx.stepName}
+
+Locator:
+{ctx.locator}
+
+Execution Time:
+{ctx.executionTime}
 
 Error:
-{request.error}
+{ctx.error}
+
+Stack Trace:
+{ctx.stackTrace}
+
+Screenshot Analysis:
+{screenshot_result}
 
 Logs:
-{request.logs}
+{ctx.logs}
 """
 
-        try:
+        # -------------------------
+        # STEP 5 ENDS HERE
+        # -------------------------
 
-            response = client.chat.completions.create(
+        # -------------------------
+        # STEP 6 STARTS HERE
+        # -------------------------
 
-                model=Config.MODEL,
+        completion = client.beta.chat.completions.parse(
 
-                temperature=0.2,
+            model=Config.MODEL,
 
-                messages=[
-                    {
-                        "role": "system",
-                        "content": prompt
-                    },
-                    {
-                        "role": "user",
-                        "content": user_input
-                    }
-                ]
+            messages=[
+                {
+                    "role": "system",
+                    "content": prompt
+                },
+                {
+                    "role": "user",
+                    "content": user_input
+                }
+            ],
 
-            )
+            response_format=FailureAnalysisResponse
+        )
 
-            content = response.choices[0].message.content
+        return completion.choices[0].message.parsed
 
-            data = json.loads(content)
-
-            return FailureAnalysisResponse(
-                summary=data["summary"],
-                rootCause=data["rootCause"],
-                recommendation=data["recommendation"],
-                confidence=data["confidence"]
-            )
-
-        except Exception as ex:
-
-            print("OpenAI Error :", ex)
-
-            return FailureAnalysisResponse(
-
-                summary="AI analysis unavailable.",
-
-                rootCause=str(ex),
-
-                recommendation="Check AI service and OpenAI configuration.",
-
-                confidence=0
-            )
+        # -------------------------
+        # STEP 6 ENDS HERE
+        # -------------------------
