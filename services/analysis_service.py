@@ -1,21 +1,18 @@
-from providers.openai_provider import OpenAIProvider
-
-
 class AnalysisService:
-
-    @staticmethod
-    def analyze(request):
-        root_cause = AnalysisService.rule_engine(request)
-
-        if root_cause is None:
-            return OpenAIProvider.analyze_with_openai(request)
-
-        return root_cause
-
     @staticmethod
     def rule_engine(request):
+        # get context in a safe way
+        if hasattr(request, "context"):
+            ctx = request.context
+        elif isinstance(request, dict):
+            ctx = request.get("context")
+        else:
+            ctx = None
 
-        ctx = request.context
+        # existing logic that used ctx
+        # example placeholder:
+        if not ctx:
+            return {}
 
         error = (ctx.error or "").lower()
 

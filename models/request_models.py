@@ -1,8 +1,8 @@
-from pydantic import BaseModel
-from typing import Optional
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class AutomationContext(BaseModel):
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
 
     testName: str | None = None
 
@@ -22,7 +22,7 @@ class AutomationContext(BaseModel):
 
     stackTrace: str | None = None
 
-    logs: list[str] = []
+    logs: list[str] = Field(default_factory=list, max_length=500)
 
     executionTime: int | None = None
 
@@ -31,12 +31,12 @@ class AutomationContext(BaseModel):
     playwrightVersion: str
 
     timestamp: str
-    screenshotPath: Optional[str] = None
-    videoPath: Optional[str] = None
+    screenshotPath: str | None = None
+    videoPath: str | None = None
     pageHtml: str | None = None
 
     screenshotBase64: str | None = None
 
 class FailureAnalysisRequest(BaseModel):
-
+    model_config = ConfigDict(extra="forbid")
     context: AutomationContext
